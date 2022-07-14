@@ -38,8 +38,6 @@ function wpcm_admin_menu(){
         function(){
             ?>
                 <div style="margin: 40px;">
-                    <input type="text" id="wpcm_user" />
-                    <input type="text" id="wpcm_pass" />
                     <button id="btn" class="button button-primary">Send Mail</button>
                     <script>
                         jQuery("#btn").click("click", function(){
@@ -47,9 +45,7 @@ function wpcm_admin_menu(){
                                 url: ajaxurl,
                                 method:'post',
                                 data:{
-                                    action: 'wpcm_send_mail',
-                                    user: jQuery('#wpcm_user').val(),
-                                    pass: jQuery('#wpcm_pass').val()
+                                    action: 'wpcm_send_mail'
                                 },
                                 success: function(response){
                                     console.log(response);
@@ -74,8 +70,8 @@ function wpcm_send_mail(){
         $mail->isSMTP();                                            //Send using SMTP
         $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
         $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-        $mail->Username   = $_POST['user'];                     //SMTP username
-        $mail->Password   = $_POST['pass'];                               //SMTP password
+        $mail->Username   = 'omartinez1618@gmail.com';                  //SMTP username
+        $mail->Password   = 'fhhynumuxgzfksmj';       //vsgweaowshtdgxdh        //SMTP password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
         $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
     
