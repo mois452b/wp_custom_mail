@@ -77,7 +77,7 @@ function wpcm_send_mail(){
     
         //Recipients
         $mail->setFrom('omartinez1618@gmail.com', 'Octavio Martinez');
-        $mail->addAddress('omartinez1618@gmail.com', 'Octavio Martinez');     //Add a recipient
+        $mail->addAddress('elmoises.reyderey@gmail.com', 'Moises Rodriguez');     //Add a recipient
         // $mail->addAddress('ellen@example.com');               //Name is optional
         // $mail->addReplyTo('info@example.com', 'Information');
         // $mail->addCC('cc@example.com');
@@ -88,9 +88,15 @@ function wpcm_send_mail(){
         // $mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
     
         //Content
+        ob_start( );
+        include WP_PLUGIN_DIR.'/wp_custom_mail/template/index.html';
+        $body = ob_get_contents( );
+        ob_end_clean( );
+        echo $body;
+
         $mail->isHTML(true);                                  //Set email format to HTML
-        $mail->Subject = 'Here is the subject';
-        $mail->Body    = 'This is the HTML message body <b>in bold!</b>';
+        $mail->Subject = 'Here is the subject 2';
+        $mail->Body    = $body;
         $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
     
         $mail->send();
