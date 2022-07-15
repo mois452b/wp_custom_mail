@@ -88,19 +88,40 @@ function wpcm_send_mail(){
         // $mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
     
         //Content
-        ob_start( );
-        include WP_PLUGIN_DIR.'/wp_custom_mail/template/index.html';
-        $body = ob_get_contents( );
-        ob_end_clean( );
-        echo $body;
+        // ob_start( );
+        // include WP_PLUGIN_DIR.'/wp_custom_mail/template/index.html';
+        // $body = ob_get_contents( );
+        // ob_end_clean( );
+        // echo $body;
 
         $mail->isHTML(true);                                  //Set email format to HTML
         $mail->Subject = 'Here is the subject 2';
         $mail->Body    = $body;
         $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
-    
-        $mail->send();
-        echo 'Message has been sent';
+
+        // $mail->send();
+
+        $to = "elmoises.reyderey.com";
+        $subject = "This is a test HTML email";
+
+        $message = "
+        <html>
+        <head>
+        <title>This is a test HTML email</title>
+        </head>
+        <body>
+        <p>Test email. Please ignore.</p>
+        </body>
+        </html>
+        ";
+        $headers = "MIME-Version: 1.0" . "\r\n";
+        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+        $headers .= 'From: <omartinez1618@gmail.com>' . "\r\n";
+        $headers .= 'Cc: omartinez1618@gmail.com' . "\r\n";
+
+        mail($to,$subject,$message,$headers);
+
+        echo 'Message has been sent correctamente';
     } catch (Exception $e) {
         echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
     }
