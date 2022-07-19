@@ -10,121 +10,102 @@
  */
 
  require 'vendor/autoload.php';
+ // use PHPMailer\PHPMailer\PHPMailer;
+ // use PHPMailer\PHPMailer\SMTP;
+ // use PHPMailer\PHPMailer\Exception;
 
- use PHPMailer\PHPMailer\PHPMailer;
- use PHPMailer\PHPMailer\SMTP;
- use PHPMailer\PHPMailer\Exception;
+register_activation_hook(__FILE__, array('WP_custom_mail', 'wpcm__activation'));
+register_deactivation_hook(__FILE__, array('WP_custom_mail', 'wpcm__deactivation'));
+add_action('init', array('WP_custom_mail', 'init'));
 
-register_activation_hook(__FILE__, 'wpcm__activation');
-register_deactivation_hook(__FILE__, 'wpcm__deactivation');
-add_action('admin_menu', 'wpcm_admin_menu');
-add_action('wp_ajax_wpcm_send_mail', 'wpcm_send_mail');
-
-function wpcm__activation(){
-
-}
-
-function wpcm__deactivation(){
-    
-}
-
-function wpcm_admin_menu(){
-
-    add_menu_page(
-        "Mail",
-        "Mail",
-        "manage_options",
-        "menu-mails",
-        function(){
-            ?>
-                <div style="margin: 40px;">
-                    <button id="btn" class="button button-primary">Send Mail</button>
-                    <script>
-                        jQuery("#btn").click("click", function(){
-                            jQuery.ajax({
-                                url: ajaxurl,
-                                method:'post',
-                                data:{
-                                    action: 'wpcm_send_mail'
-                                },
-                                success: function(response){
-                                    console.log(response);
-                                }
-                            });
-                        })
-                    </script>
-                </div>
-
-            <?php
-        },
-        "",
-        6
-    );
-}
-
-function wpcm_send_mail(){
-    $mail = new PHPMailer(true);
-    try {
-        //Server settings
-        $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
-        $mail->isSMTP();                                            //Send using SMTP
-        $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
-        $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-        $mail->Username   = 'omartinez1618@gmail.com';                  //SMTP username
-        $mail->Password   = 'fhhynumuxgzfksmj';       //vsgweaowshtdgxdh        //SMTP password
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-        $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
-    
-        //Recipients
-        $mail->setFrom('omartinez1618@gmail.com', 'Octavio Martinez');
-        $mail->addAddress('elmoises.reyderey@gmail.com', 'Moises Rodriguez');     //Add a recipient
-        // $mail->addAddress('ellen@example.com');               //Name is optional
-        // $mail->addReplyTo('info@example.com', 'Information');
-        // $mail->addCC('cc@example.com');
-        // $mail->addBCC('bcc@example.com');
-    
-        //Attachments
-        // $mail->addAttachment('/var/tmp/file.tar.gz');         //Add attachments
-        // $mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
-    
-        //Content
-        // ob_start( );
-        // include WP_PLUGIN_DIR.'/wp_custom_mail/template/index.html';
-        // $body = ob_get_contents( );
-        // ob_end_clean( );
-        // echo $body;
-
-        $mail->isHTML(true);                                  //Set email format to HTML
-        $mail->Subject = 'Here is the subject 2';
-        $mail->Body    = $body;
-        $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
-
-        // $mail->send();
-
-        $to = "elmoises.reyderey.com";
-        $subject = "This is a test HTML email";
-
-        $message = "
-        <html>
-        <head>
-        <title>This is a test HTML email</title>
-        </head>
-        <body>
-        <p>Test email. Please ignore.</p>
-        </body>
-        </html>
-        ";
-        $headers = "MIME-Version: 1.0" . "\r\n";
-        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-        $headers .= 'From: <omartinez1618@gmail.com>' . "\r\n";
-        $headers .= 'Cc: omartinez1618@gmail.com' . "\r\n";
-
-        mail($to,$subject,$message,$headers);
-
-        echo 'Message has been sent correctamente';
-    } catch (Exception $e) {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+class WP_custom_mail{
+    public static function init( ) {
+        add_action('admin_menu', array('WP_custom_mail', 'wpcm_admin_menu'));
+        add_action('wp_ajax_wpcm_send_mail', array('WP_custom_mail', 'wpcm_send_mail'));
     }
-    
-    wp_die();
+
+    public static function wpcm__activation(){
+
+    }
+
+    public static function wpcm__deactivation(){
+        
+    }
+
+    public static function wpcm_admin_menu(){
+
+        add_menu_page(
+            "Mail",
+            "Mail",
+            "manage_options",
+            "menu-mails",
+            function(){
+                ?>
+                    <div style="margin: 40px;">
+                        <form>
+                            <div>
+                                <label>Dirección de correo electrónico del remitente</label>
+                                <input type="text" name="user">
+                            </div>
+                            <div>
+                                <label>Nombre del remitente</label>
+                                <input type="text" name="name">
+                            </div>
+                            <div>
+                                <label>Contraseña</label>
+                                <input type="password" name="password">
+                            </div>
+                            <input type="submit" name="btn">
+                        </form>
+                        <style type="text/css">
+                            #swpsmtp_settings_form input[type='text'],
+                            #swpsmtp_settings_form input[type='password'],
+                            #swpsmtp_settings_form input[type='email'],
+                            #swpsmtp_settings_form input[type='text']
+                            {
+                                width: 350px;
+                            }
+                        </style>
+                        <script>
+                            jQuery("#btn").click("click", function(){
+                                jQuery.ajax({
+                                    url: ajaxurl,
+                                    method:'post',
+                                    data:{
+                                        action: 'wpcm_send_mail'
+                                    },
+                                    success: function(response){
+                                        console.log(response);
+                                    }
+                                });
+                            })
+                        </script>
+                    </div>
+
+                <?php
+            },
+            "",
+            6
+        );
+    }
+
+    public static function wpcm_send_mail(){
+        $mail = new wp_custom_mail( );
+        try {
+            $mail->user( 'omartinez1618@gmail.com', 'omartinez1618@gmail.com' );
+            $mail->host('smtp.gmail.com');
+            $mail->port(465);
+
+            $mail->to('elmoises.reyderey@gmail.com');
+            $mail->subject('hola moises');
+            $mail->body('ejemplo de boy');
+            // $mail->send( );
+
+            echo 'Message has been sent correctamente';
+        } catch (Exception $e) {
+            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        }
+        
+        wp_die();
+    }
 }
