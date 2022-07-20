@@ -22,6 +22,7 @@ class WP_custom_mail{
     public static function init( ) {
         add_action('admin_menu', array('WP_custom_mail', 'wpcm_admin_menu'));
         add_action('wp_ajax_wpcm_send_mail', array('WP_custom_mail', 'wpcm_send_mail'));
+        add_action('wp_ajax_wpcm_update_settings_data', array('WP_custom_mail', 'wpcm_update_settings_data'));
     }
 
     public static function wpcm__activation(){
@@ -40,30 +41,40 @@ class WP_custom_mail{
             "manage_options",
             "menu-mails",
             function(){
+                $user = get_option('wpcm_user');
+                $name = get_option('wpcm_name');
+                $password = get_option('wpcm_password') ? 'nopermitidoverelpassword' : '';
                 ?>
                     <div style="margin: 40px;">
-                        <form>
+                        <form id="wpcm_settings_form">
                             <div>
                                 <label>Dirección de correo electrónico del remitente</label>
-                                <input type="text" name="user">
+                                <input type="text" id="user" name="user" value="<?=$user;?>">
                             </div>
                             <div>
                                 <label>Nombre del remitente</label>
-                                <input type="text" name="name">
+                                <input type="text" id="name" name="name" value="<?=$name;?>">
                             </div>
                             <div>
                                 <label>Contraseña</label>
-                                <input type="password" name="password">
+                                <input type="password" id="password" name="password" value="<?=$password;?>">
                             </div>
-                            <input type="submit" name="btn">
+                            <input type="button" name="btn" id="btn" value="enviar">
                         </form>
                         <style type="text/css">
-                            #swpsmtp_settings_form input[type='text'],
-                            #swpsmtp_settings_form input[type='password'],
-                            #swpsmtp_settings_form input[type='email'],
-                            #swpsmtp_settings_form input[type='text']
+                            #wpcm_settings_form input[type='text'],
+                            #wpcm_settings_form input[type='password'],
+                            #wpcm_settings_form input[type='email'],
+                            #wpcm_settings_form input[type='text']
                             {
                                 width: 350px;
+                            }
+                            #wpcm_settings_form div {
+                                padding: 10px;
+                                margin: 10px;
+                            }
+                            #wpcm_settings_form label {
+                                width: 500px;
                             }
                         </style>
                         <script>
@@ -72,7 +83,10 @@ class WP_custom_mail{
                                     url: ajaxurl,
                                     method:'post',
                                     data:{
-                                        action: 'wpcm_send_mail'
+                                        action: 'wpcm_update_settings_data',
+                                        user: jQuery('#user').val( ),
+                                        name: jQuery('#name').val( ),
+                                        password: jQuery('#password').val( )
                                     },
                                     success: function(response){
                                         console.log(response);
@@ -89,7 +103,19 @@ class WP_custom_mail{
         );
     }
 
-    public static function wpcm_send_mail(){
+    public static function wpcm_update_settings_data( ) {
+        $user = $_POST['user'];
+        $name = $_POST['name'];
+        $password = $_POST['password'];
+
+        update_option('wpcm_user', $user );
+        update_option('wpcm_name', $name );
+        update_option('wpcm_password', $password );
+
+        return 'listo';
+    }
+
+    public static function wpcm_send_mail( ){
         $mail = new wp_custom_mail( );
         try {
             $mail->user( 'omartinez1618@gmail.com', 'omartinez1618@gmail.com' );
