@@ -3,9 +3,9 @@
     "type": "project",
     "license": "MIT",
     "autoload": {
-        "psr-4": {
-            "Zenx5\\WpCustomMail\\": "src/"
-        }
+        "files": [
+            "src/class-wp-custom-mail.php"
+        ]
     },
     "authors": [
         {
