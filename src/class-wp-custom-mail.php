@@ -16,7 +16,23 @@ class Mails{
 
     public static function init(){
         add_action('admin_menu', ['Mails','admin_menu']);
-        add_action('wp_ajax_wpcm_update_settings_data', ['Mails','update_settings_data']);
+        add_action('wp_ajax_wpcm_update_settings_data', ['Mails','wpcm_update_settings_data']);
+        add_action( 'swastarkencl_issuance_saved', ['Mails', 'swastarkencl_issuance_saved'] );
+    }
+
+    public static function swastarkencl_issuance_saved($issuance, $from_status, $to_status){
+        if(true) {
+            $full_name = $issuance->receiver_names.' '.$issuance->receiver_paternal;
+            $order_id = $issuance->order_id;
+            $reference_issuance = $issuance->freight_order;
+            $link_tracking = "https://starkencl.com/".$reference_issuance;
+            ob_start();
+            include '../template/en_transito.php';
+            $content = ob_get_contents();
+            ob_end_clean();
+            Mails::send_email( $issuance->receiver_email ,"En Transito", $content );
+        }
+
     }
 
     public static function admin_menu(){
@@ -31,12 +47,7 @@ class Mails{
                 $password = get_option('wpcm_password') ? 'nopermitidoverelpassword' : '';
 
 
-                if( is_plugin_active('wp_custom_mail/wp_custom_mail.php')) {
-                    echo Mails::send_email("elmoises.reyderey@gmail.com","prueba de email","hola moses como estas");
-                }
-                else {
-                    echo "<h1>plugin no activo</h1>";
-                }
+                
                 ?>
                     <div style="margin: 40px;">
                         <form id="wpcm_settings_form">

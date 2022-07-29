@@ -1,3 +1,6 @@
+<?php 
+
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -24,14 +27,14 @@
 </head>
 <body>
 	<header>
-		<h1>Hi Octavio Martinez</h1>
+		<h1>Hola <?=$full_name?></h1>
 	</header>
 	<hr>
 	<section>
-		<h3>Order ID TQXZJMEGV -In transit</h3>
+		<h3>ID de Orden: <?=$order_id?> - En Transito</h3>
 		<div>
-			<p>Your order with the reference <b>TQXZJMEGV</b> is on its way.</p>
-			<p>You can track package using the following link: <a href="">969986246</a></p>
+			<p>Tu orden con el numero de referencia <b><?=$reference_issuance?></b> esta en camino.</p>
+			<p>You can track package using the following link: <a href="<?=$link_tracking?>">[Link]</a></p>
 		</div>
 	</section>
 </body>
