@@ -44,11 +44,11 @@ class Mails{
                 $user = get_option('wpcm_user');
                 $name = get_option('wpcm_name');
                 $password = get_option('wpcm_password') ? 'nopermitidoverelpassword' : '';
-                $password = get_option('wpcm_host') ? get_option('wpcm_host') : '';
-                $password = get_option('wpcm_port') ? get_option('wpcm_host') : '';
-                $checked = get_option('wpcm_autenticated') ? 'checked' : '';
-                $checked = get_option('wpcm_encrypted') ? 'checked' : '';
-                $checked = get_option('wpcm_checked') ? 'checked' : '';
+                $host = get_option('wpcm_host') ? get_option('wpcm_host') : '';
+                $port = get_option('wpcm_port') ? get_option('wpcm_port') : '';
+                $autenticated = get_option('wpcm_autenticated') == "true" ? 'checked' : '';
+                $encrypted = get_option('wpcm_encrypted') == "true"  ? 'checked' : '';
+                $checked = get_option('wpcm_checked') == "true"  ? 'checked' : '';
                 ?>
                     <div style="margin: 40px;">
                         <form id="wpcm_settings_form">
@@ -161,7 +161,7 @@ class Mails{
         $host = $_POST['host'];
         $port = $_POST['port'];
         $autenticated = $_POST['autenticated'];
-        $encrypted $_POST['encrypted'];
+        $encrypted = $_POST['encrypted'];
         $checked = $_POST['checked'];
 
         update_option('wpcm_user', $user );
