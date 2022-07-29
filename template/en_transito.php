@@ -34,7 +34,7 @@
 		<h3>ID de Orden: <?=$order_id?> - En Transito</h3>
 		<div>
 			<p>Tu orden con el numero de referencia <b><?=$reference_issuance?></b> esta en camino.</p>
-			<p>You can track package using the following link: <a href="<?=$link_tracking?>">[Link]</a></p>
+			<p>Puede rastrear el paquete usando el siguiente enlace: <a href="<?=$link_tracking?>">[Link]</a></p>
 		</div>
 	</section>
 </body>
