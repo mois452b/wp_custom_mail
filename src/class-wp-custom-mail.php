@@ -32,7 +32,6 @@ class Mails{
             ob_end_clean();
             Mails::send_email( $issuance->receiver_email ,"En Transito", $content );
         }
-
     }
 
     public static function admin_menu(){
@@ -45,6 +44,10 @@ class Mails{
                 $user = get_option('wpcm_user');
                 $name = get_option('wpcm_name');
                 $password = get_option('wpcm_password') ? 'nopermitidoverelpassword' : '';
+                $password = get_option('wpcm_host') ? get_option('wpcm_host') : '';
+                $password = get_option('wpcm_port') ? get_option('wpcm_host') : '';
+                $checked = get_option('wpcm_autenticated') ? 'checked' : '';
+                $checked = get_option('wpcm_encrypted') ? 'checked' : '';
                 $checked = get_option('wpcm_checked') ? 'checked' : '';
                 ?>
                     <div style="margin: 40px;">
@@ -68,6 +71,30 @@ class Mails{
 		                                <input type="password" id="password" name="password" value="<?=$password;?>">
                         			</td>
                         		</tr>
+                                <tr>
+                                    <th>SMTP Host</th>
+                                    <td>
+                                        <input type="text" id="host" name="host" value="<?=$host;?>">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>SMTP Port</th>
+                                    <td>
+                                        <input type="text" id="port" name="port" value="<?=$port;?>">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Autenticacion SMTP</th>
+                                    <td>
+                                        <input type="checkbox" id="autenticated" name="autenticated" <?=$autenticated;?>>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Encriptado</th>
+                                    <td>
+                                        <input type="checkbox" id="encrypted" name="encrypted" <?=$encrypted;?>>
+                                    </td>
+                                </tr>
                                 <tr>
                                     <th>enviar mail al generar emision</th>
                                     <td>
@@ -106,6 +133,10 @@ class Mails{
                                         user: jQuery('#user').val( ),
                                         name: jQuery('#name').val( ),
                                         password: jQuery('#password').val( ),
+                                        host: jQuery('#host').val( ),
+                                        port: jQuery('#port').val( ),
+                                        autenticated: document.querySelector('#autenticated').checked,
+                                        encrypted: document.querySelector('#encrypted').checked,
                                         checked: document.querySelector('#checked').checked
                                     },
                                     success: function(response){
@@ -127,11 +158,19 @@ class Mails{
         $user = $_POST['user'];
         $name = $_POST['name'];
         $password = $_POST['password'];
+        $host = $_POST['host'];
+        $port = $_POST['port'];
+        $autenticated = $_POST['autenticated'];
+        $encrypted $_POST['encrypted'];
         $checked = $_POST['checked'];
 
         update_option('wpcm_user', $user );
         update_option('wpcm_name', $name );
         update_option('wpcm_password', $password );
+        update_option('wpcm_host', $host );
+        update_option('wpcm_port', $port );
+        update_option('wpcm_autenticated', $autenticated );
+        update_option('wpcm_encrypted', $encrypted );
         update_option('wpcm_checked', $checked );
     }
 
