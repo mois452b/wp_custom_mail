@@ -9,14 +9,12 @@
  * 
  */
 
- require 'vendor/autoload.php';
- use PHPMailer\PHPMailer\PHPMailer;
- use PHPMailer\PHPMailer\SMTP;
- use PHPMailer\PHPMailer\Exception;
 
-include 'class_wp_custom_mail.php';
+require 'vendor/autoload.php';
+include 'src/class-wp-custom-mail.php';
 
-register_activation_hook(__FILE__, array('WP_custom_mail', 'wpcm__activation'));
-register_deactivation_hook(__FILE__, array('WP_custom_mail', 'wpcm__deactivation'));
-add_action('init', array('WP_custom_mail', 'init'));
+ 
+register_activation_hook(__FILE__, 'wpcm__activation');
+register_deactivation_hook(__FILE__, 'wpcm__deactivation');
+add_action('init', ['Mails','init']);
 
