@@ -16,7 +16,7 @@ class Mails{
 
     public static function init(){
         add_action('admin_menu', ['Mails','admin_menu']);
-        add_action('wp_ajax_wpcm_update_settings_data', ['Mails','update_settings_data']);
+        add_action('wp_ajax_wpcm_update_settings_data', ['Mails','wpcm_update_settings_data']);
     }
 
     public static function admin_menu(){
@@ -29,20 +29,13 @@ class Mails{
                 $user = get_option('wpcm_user');
                 $name = get_option('wpcm_name');
                 $password = get_option('wpcm_password') ? 'nopermitidoverelpassword' : '';
-
-
-                if( is_plugin_active('wp_custom_mail/wp_custom_mail.php')) {
-                    echo Mails::send_email("elmoises.reyderey@gmail.com","prueba de email","hola moses como estas");
-                }
-                else {
-                    echo "<h1>plugin no activo</h1>";
-                }
+                $checked = get_option('wpcm_checked') ? 'checked' : '';
                 ?>
                     <div style="margin: 40px;">
                         <form id="wpcm_settings_form">
                         	<table>
                         		<tr>
-                        			<th>Dirección de correo electrónico del remitente</th>
+                        			<th>Email</th>
                         			<td>
 		                                <input type="text" id="user" name="user" value="<?=$user;?>">                				
                         			</td>
@@ -54,11 +47,17 @@ class Mails{
                         			</td>
                         		</tr>
                         		<tr>
-                        			<th>Contraseña</th>
+                        			<th>Contraseña de aplicacion</th>
                         			<td>
 		                                <input type="password" id="password" name="password" value="<?=$password;?>">
                         			</td>
                         		</tr>
+                                <tr>
+                                    <th>enviar mail al generar emision</th>
+                                    <td>
+                                        <input type="checkbox" id="checked" name="checked" <?=$checked;?>>
+                                    </td>
+                                </tr>
                         	</table>
                         	<div class="btn-container">
                             	<input type="button" name="btn" id="btn" value="enviar">
@@ -73,11 +72,12 @@ class Mails{
                                 width: 350px;
                             }
                             table {
-                            	width: 100%;
+                            	width: 70%;
                             }
                             table tr {
                                 padding: 10px;
                                 margin: 10px;
+                                text-align: left;
                             }
                         </style>
                         <script>
@@ -89,7 +89,8 @@ class Mails{
                                         action: 'wpcm_update_settings_data',
                                         user: jQuery('#user').val( ),
                                         name: jQuery('#name').val( ),
-                                        password: jQuery('#password').val( )
+                                        password: jQuery('#password').val( ),
+                                        checked: document.querySelector('#checked').checked
                                     },
                                     success: function(response){
                                         console.log(response);
@@ -110,10 +111,12 @@ class Mails{
         $user = $_POST['user'];
         $name = $_POST['name'];
         $password = $_POST['password'];
+        $checked = $_POST['checked'];
 
         update_option('wpcm_user', $user );
         update_option('wpcm_name', $name );
         update_option('wpcm_password', $password );
+        update_option('wpcm_checked', $checked );
     }
 
     public static function send_email( $to, $subject, $body ){
