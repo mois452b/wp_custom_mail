@@ -17,6 +17,7 @@ class Mails{
     public static function init(){
         add_action('admin_menu', ['Mails','admin_menu']);
         add_action('wp_ajax_wpcm_update_settings_data', ['Mails','wpcm_update_settings_data']);
+        add_action('wp_ajax_wpcm_send_email_test', ['Mails','send_email_test']);
         add_action( 'swastarkencl_issuance_saved', ['Mails', 'swastarkencl_issuance_saved'] );
     }
 
@@ -41,22 +42,31 @@ class Mails{
             "manage_options",
             "menu-mails",
             function(){
-                $user = get_option('wpcm_user');
+                $emailfrom = get_option('wpcm_emailfrom');
                 $name = get_option('wpcm_name');
+                $username = get_option('wpcm_username');
                 $password = get_option('wpcm_password') ? 'nopermitidoverelpassword' : '';
                 $host = get_option('wpcm_host') ? get_option('wpcm_host') : '';
                 $port = get_option('wpcm_port') ? get_option('wpcm_port') : '';
                 $autenticated = get_option('wpcm_autenticated') == "true" ? 'checked' : '';
                 $encrypted = get_option('wpcm_encrypted') == "true"  ? 'checked' : '';
                 $checked = get_option('wpcm_checked') == "true"  ? 'checked' : '';
+
+
+        $to = get_option('wpcm_emailfrom');
+        $subject = "Prueba de email desde Plugin Mail";
+        $body = 'esto es una prueba de email desde el plugin mail';
+        // echo Mails::send_email( $to, $subject, $body );
+        echo get_option('wpcm_emailfrom');
+        echo get_option('wpcm_password');
                 ?>
                     <div style="margin: 40px;">
                         <form id="wpcm_settings_form">
                         	<table>
                         		<tr>
-                        			<th>Email</th>
+                        			<th>Email From</th>
                         			<td>
-		                                <input type="text" id="user" name="user" value="<?=$user;?>">                				
+		                                <input type="text" id="emailfrom" name="emailfrom" value="<?=$emailfrom;?>">                				
                         			</td>
                         		</tr>
                         		<tr>
@@ -65,8 +75,14 @@ class Mails{
 		                                <input type="text" id="name" name="name" value="<?=$name;?>">                				
                         			</td>
                         		</tr>
+                                <tr>
+                                    <th>SMTP username</th>
+                                    <td>
+                                        <input type="text" id="username" name="username" value="<?=$username;?>">
+                                    </td>
+                                </tr>
                         		<tr>
-                        			<th>Contraseña de aplicacion</th>
+                        			<th>SMTP password</th>
                         			<td>
 		                                <input type="password" id="password" name="password" value="<?=$password;?>">
                         			</td>
@@ -101,10 +117,15 @@ class Mails{
                                         <input type="checkbox" id="checked" name="checked" <?=$checked;?>>
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>
+                            	       <input type="button" name="btn" id="btn" value="update">    
+                                    </td>
+                                    <td>
+                                       <input type="button" name="send-test-mail" id="send-test-mail" value="Enviar mail de prueba">    
+                                    </td>
+                                </tr>
                         	</table>
-                        	<div class="btn-container">
-                            	<input type="button" name="btn" id="btn" value="enviar">
-                        	</div>
                         </form>
                         <style type="text/css">
                             #wpcm_settings_form input[type='text'],
@@ -125,13 +146,15 @@ class Mails{
                         </style>
                         <script>
                             jQuery("#btn").click("click", function(){
+                                console.log("btn")
                                 jQuery.ajax({
                                     url: ajaxurl,
                                     method:'post',
                                     data:{
                                         action: 'wpcm_update_settings_data',
-                                        user: jQuery('#user').val( ),
+                                        emailfrom: jQuery('#emailfrom').val( ),
                                         name: jQuery('#name').val( ),
+                                        username: jQuery('#username').val( ),
                                         password: jQuery('#password').val( ),
                                         host: jQuery('#host').val( ),
                                         port: jQuery('#port').val( ),
@@ -141,9 +164,23 @@ class Mails{
                                     },
                                     success: function(response){
                                         console.log(response);
+                                        location.reload( );
                                     }
                                 });
-                            })
+                            });
+                            jQuery('#send-test-mail').click('click', function( ) {
+                                console.log("entro")
+                                jQuery.ajax({
+                                    url: ajaxurl,
+                                    method:'post',
+                                    data:{
+                                        action: 'wpcm_send_email_test'
+                                    },
+                                    success: function(response){
+                                        console.log(response);
+                                    }
+                                });
+                            });
                         </script>
                     </div>
     
@@ -155,8 +192,9 @@ class Mails{
     }
 
     public static function wpcm_update_settings_data( ) {
-        $user = $_POST['user'];
+        $emailfrom = $_POST['emailfrom'];
         $name = $_POST['name'];
+        $username = $_POST['username'];
         $password = $_POST['password'];
         $host = $_POST['host'];
         $port = $_POST['port'];
@@ -164,8 +202,9 @@ class Mails{
         $encrypted = $_POST['encrypted'];
         $checked = $_POST['checked'];
 
-        update_option('wpcm_user', $user );
+        update_option('wpcm_emailfrom', $emailfrom );
         update_option('wpcm_name', $name );
+        update_option('wpcm_username', $username );
         update_option('wpcm_password', $password );
         update_option('wpcm_host', $host );
         update_option('wpcm_port', $port );
@@ -174,26 +213,39 @@ class Mails{
         update_option('wpcm_checked', $checked );
     }
 
+    public static function send_test_email( ) {
+        $to = get_option('wpcm_emailfrom');
+        $subject = "Prueba de email desde Plugin Mail";
+        $body = 'esto es una prueba de email desde el plugin mail';
+        Mails::send_email( $to, $subject, $body );
+    }
+
     public static function send_email( $to, $subject, $body ){
-        $user = get_option('wpcm_user');
+        $emailfrom = get_option('wpcm_emailfrom');
         $name = get_option('wpcm_name');
+        $username = get_option('wpcm_username');
         $password = get_option('wpcm_password');
+        $host = get_option('wpcm_host');
+        $port = get_option('wpcm_port');
+        $autenticated = get_option('wpcm_autenticated');
+        $encrypted = get_option('wpcm_encrypted');
+        $checked = get_option('wpcm_checked');
 
         try{
             //Server settings
             $mail = new PHPMailer();    
             $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
             $mail->isSMTP();                                            //Send using SMTP
-            $mail->Host       = 'smtp.gmail.com';                       //Set the SMTP server to send through
-            $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-            $mail->Username   = $user;                                  //SMTP username
+            $mail->Host       = $host //'smtp.gmail.com';                       //Set the SMTP server to send through
+            $mail->SMTPAuth   = $autenticated == "true" ? true : false;                                   //Enable SMTP authentication
+            $mail->username   = $username;                                  //SMTP emailfromname
             $mail->Password   = $password;                              //SMTP password
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-            $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+            $mail->SMTPSecure = $encrypted == "true" ? PHPMailer::ENCRYPTION_SMTPS : null;            //Enable implicit TLS encryption
+            $mail->Port       = $port;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
         
             //Recipients
-            $mail->setFrom( $user, $name );
-            $mail->addAddress( $to );     
+            $mail->setFrom( $emailfrom, $name );
+            $mail->addAddress( $to, 'moises' );     
 
             $mail->isHTML(true);                                  //Set email format to HTML
             $mail->Subject = $subject;
