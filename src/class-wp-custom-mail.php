@@ -236,7 +236,7 @@ class Mails{
             $mail = new PHPMailer();    
             $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
             $mail->isSMTP();                                            //Send using SMTP
-            $mail->Host       = $host //'smtp.gmail.com';                       //Set the SMTP server to send through
+            $mail->Host       = $host; //'smtp.gmail.com';                       //Set the SMTP server to send through
             $mail->SMTPAuth   = $autenticated == "true" ? true : false;                                   //Enable SMTP authentication
             $mail->username   = $username;                                  //SMTP emailfromname
             $mail->Password   = $password;                              //SMTP password
@@ -247,7 +247,7 @@ class Mails{
 
             $current_user = wp_get_current_user();
 
-            $mail->setFrom( $current_user->data->user_email, $current_user->data->display_name; );
+            $mail->setFrom( $current_user->data->user_email, $current_user->data->display_name );
             $mail->addAddress( $to );     
 
             $mail->isHTML(true);                                  //Set email format to HTML
