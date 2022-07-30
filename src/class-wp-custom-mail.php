@@ -42,23 +42,21 @@ class Mails{
             "manage_options",
             "menu-mails",
             function(){
-                $emailfrom = get_option('wpcm_emailfrom');
-                $name = get_option('wpcm_name');
-                $username = get_option('wpcm_username');
-                $password = get_option('wpcm_password') ? 'nopermitidoverelpassword' : '';
-                $host = get_option('wpcm_host') ? get_option('wpcm_host') : '';
-                $port = get_option('wpcm_port') ? get_option('wpcm_port') : '';
-                $autenticated = get_option('wpcm_autenticated') == "true" ? 'checked' : '';
-                $encrypted = get_option('wpcm_encrypted') == "true"  ? 'checked' : '';
-                $checked = get_option('wpcm_checked') == "true"  ? 'checked' : '';
+                $emailfrom = get_option('wpcm_emailfrom', '');
+                $name = get_option('wpcm_name', '');
+                $username = get_option('wpcm_username', '');
+                $password = get_option('wpcm_password', '');
+                $host = get_option('wpcm_host', '');
+                $port = get_option('wpcm_port', '');
+                $autenticated = get_option('wpcm_autenticated', 'true') == "true" ? 'checked' : '';
+                $encrypted = get_option('wpcm_encrypted', 'true') == "true"  ? 'checked' : '';
+                $checked = get_option('wpcm_checked', 'true') == "true"  ? 'checked' : '';
 
 
                 $to = get_option('wpcm_emailfrom');
                 $subject = "Prueba de email desde Plugin Mail";
                 $body = 'esto es una prueba de email desde el plugin mail';
                 // echo Mails::send_email( $to, $subject, $body );
-                echo get_option('wpcm_emailfrom');
-                echo get_option('wpcm_password');
                 ?>
                     <div style="margin: 40px;">
                         <form id="wpcm_settings_form">
@@ -84,7 +82,7 @@ class Mails{
                         		<tr>
                         			<th>SMTP password</th>
                         			<td>
-		                                <input type="password" id="password" name="password" value="<?=$password;?>">
+		                                <input type="text" id="password" name="password" value="<?=$password;?>">
                         			</td>
                         		</tr>
                                 <tr>
@@ -169,7 +167,6 @@ class Mails{
                                 });
                             });
                             jQuery('#send-test-mail').click('click', function( ) {
-                                console.log("entro")
                                 jQuery.ajax({
                                     url: ajaxurl,
                                     method:'post',
@@ -213,7 +210,8 @@ class Mails{
         update_option('wpcm_checked', $checked );
     }
 
-    public static function send_test_email( ) {
+    
+    public static function send_email_test( ) {
         $to = get_option('wpcm_emailfrom');
         $subject = "Prueba de email desde Plugin Mail";
         $body = 'esto es una prueba de email desde el plugin mail';
@@ -223,40 +221,49 @@ class Mails{
     public static function send_email( $to, $subject, $body ){
         $emailfrom = get_option('wpcm_emailfrom');
         $name = get_option('wpcm_name');
+        
         $username = get_option('wpcm_username');
         $password = get_option('wpcm_password');
-        $host = get_option('wpcm_host');
+        
+        $host = get_option('wpcm_host', 'smtp.gmail.com');
         $port = get_option('wpcm_port');
+        
         $autenticated = get_option('wpcm_autenticated');
         $encrypted = get_option('wpcm_encrypted');
+        
         $checked = get_option('wpcm_checked');
 
         try{
             //Server settings
+            
             $mail = new PHPMailer();    
-            $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
-            $mail->isSMTP();                                            //Send using SMTP
-            $mail->Host       = $host; //'smtp.gmail.com';                       //Set the SMTP server to send through
-            $mail->SMTPAuth   = $autenticated == "true" ? true : false;                                   //Enable SMTP authentication
-            $mail->username   = $username;                                  //SMTP emailfromname
-            $mail->Password   = $password;                              //SMTP password
-            $mail->SMTPSecure = $encrypted == "true" ? PHPMailer::ENCRYPTION_SMTPS : null;            //Enable implicit TLS encryption
-            $mail->Port       = $port;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
-        
+			$mail->SMTPDebug = 0;//SMTP::DEBUG_SERVER;
+            $mail->isSMTP();                      
+            $mail->Host       = $host; 
+            $mail->SMTPAuth   = ($autenticated === 'true')?true:false;
+            $mail->Username   = $username;
+            $mail->Password   = $password;
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            $mail->Port       = $port;
             //Recipients
 
             $current_user = wp_get_current_user();
 
-            $mail->setFrom( $current_user->data->user_email, $current_user->data->display_name );
-            $mail->addAddress( $to );     
+            $mail->setFrom( get_bloginfo('admin_email') ,  get_bloginfo('name') );
+            $mail->addAddress( $current_user->data->user_email, $current_user->data->display_name );
+            //$mail->addAddress( 'omartinez1618@gmail.com' );     
 
-            $mail->isHTML(true);                                  //Set email format to HTML
+            $mail->IsHTML(true);                                  //Set email format to HTML
             $mail->Subject = $subject;
             $mail->Body    = $body;
             $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
         
-            $mail->send();
-            echo 'Message has been sent';
+            if( ! $mail->send() ) {
+                echo "error ".$mail->ErrorInfo;
+            }else{
+                echo 'Message has been sent';
+            }
+            
         }
         catch(Exception $e){
             echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
