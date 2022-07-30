@@ -11,10 +11,8 @@
 
 
 require 'vendor/autoload.php';
-include 'src/class-wp-custom-mail.php';
-
  
-register_activation_hook(__FILE__, 'wpcm__activation');
-register_deactivation_hook(__FILE__, 'wpcm__deactivation');
+register_activation_hook(__FILE__, ['Mails','activation']);
+register_deactivation_hook(__FILE__, ['Mails','deactivation']);
 add_action('init', ['Mails','init']);
 

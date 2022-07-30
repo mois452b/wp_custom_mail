@@ -32,7 +32,6 @@ class Mails{
             ob_end_clean();
             Mails::send_email( $issuance->receiver_email ,"En Transito", $content );
         }
-
     }
 
     public static function admin_menu(){
@@ -45,7 +44,13 @@ class Mails{
                 $user = get_option('wpcm_user');
                 $name = get_option('wpcm_name');
                 $password = get_option('wpcm_password') ? 'nopermitidoverelpassword' : '';
-                $checked = get_option('wpcm_checked') ? 'checked' : '';
+                $host = get_option('wpcm_host') ? get_option('wpcm_host') : '';
+                $port = get_option('wpcm_port') ? get_option('wpcm_port') : '';
+                $autenticated = get_option('wpcm_autenticated') == "true" ? 'checked' : '';
+                $encrypted = get_option('wpcm_encrypted') == "true"  ? 'checked' : '';
+                $checked = get_option('wpcm_checked') == "true"  ? 'checked' : '';
+
+                
                 ?>
                     <div style="margin: 40px;">
                         <form id="wpcm_settings_form">
@@ -68,6 +73,30 @@ class Mails{
 		                                <input type="password" id="password" name="password" value="<?=$password;?>">
                         			</td>
                         		</tr>
+                                <tr>
+                                    <th>SMTP Host</th>
+                                    <td>
+                                        <input type="text" id="host" name="host" value="<?=$host;?>">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>SMTP Port</th>
+                                    <td>
+                                        <input type="text" id="port" name="port" value="<?=$port;?>">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Autenticacion SMTP</th>
+                                    <td>
+                                        <input type="checkbox" id="autenticated" name="autenticated" <?=$autenticated;?>>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Encriptado</th>
+                                    <td>
+                                        <input type="checkbox" id="encrypted" name="encrypted" <?=$encrypted;?>>
+                                    </td>
+                                </tr>
                                 <tr>
                                     <th>enviar mail al generar emision</th>
                                     <td>
@@ -106,6 +135,10 @@ class Mails{
                                         user: jQuery('#user').val( ),
                                         name: jQuery('#name').val( ),
                                         password: jQuery('#password').val( ),
+                                        host: jQuery('#host').val( ),
+                                        port: jQuery('#port').val( ),
+                                        autenticated: document.querySelector('#autenticated').checked,
+                                        encrypted: document.querySelector('#encrypted').checked,
                                         checked: document.querySelector('#checked').checked
                                     },
                                     success: function(response){
@@ -127,11 +160,19 @@ class Mails{
         $user = $_POST['user'];
         $name = $_POST['name'];
         $password = $_POST['password'];
+        $host = $_POST['host'];
+        $port = $_POST['port'];
+        $autenticated = $_POST['autenticated'];
+        $encrypted = $_POST['encrypted'];
         $checked = $_POST['checked'];
 
         update_option('wpcm_user', $user );
         update_option('wpcm_name', $name );
         update_option('wpcm_password', $password );
+        update_option('wpcm_host', $host );
+        update_option('wpcm_port', $port );
+        update_option('wpcm_autenticated', $autenticated );
+        update_option('wpcm_encrypted', $encrypted );
         update_option('wpcm_checked', $checked );
     }
 
@@ -139,21 +180,29 @@ class Mails{
         $user = get_option('wpcm_user');
         $name = get_option('wpcm_name');
         $password = get_option('wpcm_password');
+        $host = get_option('wpcm_host');
+        $port = get_option('wpcm_port');
+        $autenticated = get_option('wpcm_autenticated');
+        $encrypted = get_option('wpcm_encrypted');
+        $checked = get_option('wpcm_checked');
 
         try{
             //Server settings
             $mail = new PHPMailer();    
             $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
             $mail->isSMTP();                                            //Send using SMTP
-            $mail->Host       = 'smtp.gmail.com';                       //Set the SMTP server to send through
-            $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+            $mail->Host       = $host;                       //Set the SMTP server to send through
+            $mail->SMTPAuth   = $autenticated == "true" ? true : false;                                   //Enable SMTP authentication
             $mail->Username   = $user;                                  //SMTP username
             $mail->Password   = $password;                              //SMTP password
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-            $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+            $mail->SMTPSecure = $encrypted == "true" ? PHPMailer::ENCRYPTION_SMTPS : null;            //Enable implicit TLS encryption
+            $mail->Port       = $port;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
         
             //Recipients
-            $mail->setFrom( $user, $name );
+
+            $current_user = wp_get_current_user();
+
+            $mail->setFrom( $current_user->data->user_email, $current_user->data->display_name; );
             $mail->addAddress( $to );     
 
             $mail->isHTML(true);                                  //Set email format to HTML
