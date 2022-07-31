@@ -21,14 +21,17 @@ class Mails{
         add_action( 'swastarkencl_issuance_saved', ['Mails', 'swastarkencl_issuance_saved'] );
     }
 
-    public static function swastarkencl_issuance_saved($issuance, $from_status, $to_status){
+    public static function swastarkencl_issuance_saved(...$args){
+        $issuance = $args[0][0];
+        $from_status = $args[0][1];
+        $to_status = $args[0][2];
         if(true) {
             $full_name = $issuance->receiver_names.' '.$issuance->receiver_paternal;
             $order_id = $issuance->order_id;
             $reference_issuance = $issuance->freight_order;
             $link_tracking = "https://starkencl.com/".$reference_issuance;
             ob_start();
-            include '../template/en_transito.php';
+            include WP_PLUGIN_DIR.'/template/en_transito.php';
             $content = ob_get_contents();
             ob_end_clean();
             Mails::send_email( $issuance->receiver_email ,"En Transito", $content );
