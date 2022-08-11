@@ -33,9 +33,13 @@
 	<section>
 		<h3>ID de Orden: <?=$order_id?> - En Transito</h3>
 		<div>
-			<p>Tu orden con el numero de referencia <b><?=$reference_issuance?></b> esta en camino.</p>
-			<p>Puede rastrear el paquete usando el siguiente enlace: <a href="<?=$link_tracking?>">[Link]</a></p>
-		</div>
+			<p>Tu orden esta en camino.</p>
+			<?php if($issuance_id == 0): ?>
+				<p>Puede conocer el estado del envio usando el siguiente enlace: <a href="<?=get_permalink( get_option('woocommerce_myaccount_page_id') ).'view-order/'.$order_id?>" >[Link]</a></p>
+			<?php else:?>
+				<p>Puede conocer el estado del envio usando el siguiente enlace: <a href="https://starken.cl/seguimiento?codigo=<?=$issuance_id?>" ><?=$issuance_id?></a></p>
+			<?php endif; ?>
+		</div>		
 	</section>
 </body>
 </html>

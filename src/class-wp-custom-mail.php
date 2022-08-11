@@ -18,6 +18,7 @@ class Mails{
         add_action('admin_menu', ['Mails','admin_menu']);
         add_action('wp_ajax_wpcm_update_settings_data', ['Mails','wpcm_update_settings_data']);
         add_action('wp_ajax_wpcm_send_email_test', ['Mails','send_email_test']);
+        add_action('wp_ajax_wpcm_resend_email', ['Mails','resend_email']);
         add_action( 'swastarkencl_issuance_saved', ['Mails', 'swastarkencl_issuance_saved'] );
     }
 
@@ -28,14 +29,24 @@ class Mails{
         if(true) {
             $full_name = $issuance->receiver_names.' '.$issuance->receiver_paternal;
             $order_id = $issuance->order_id;
-            $reference_issuance = $issuance->freight_order;
-            $link_tracking = "https://starkencl.com/".$reference_issuance;
+            $issuance_id = $issuance->issuance_id;
             ob_start();
-            include WP_PLUGIN_DIR.'/template/en_transito.php';
+            include WP_PLUGIN_DIR.'/wp_custom_mail/template/en_transito.php';
             $content = ob_get_contents();
             ob_end_clean();
             Mails::send_email( $issuance->receiver_email ,"En Transito", $content );
         }
+    }
+
+    public static function resend_email(){
+        $full_name = $_POST['name'];
+        $order_id = $_POST['order'];
+        $issuance_id = $_POST['issuance'];
+        ob_start();
+        include WP_PLUGIN_DIR.'/wp_custom_mail/template/en_transito.php';
+        $content = ob_get_contents();
+        ob_end_clean();
+        Mails::send_email( $_POST['email'] ,"En Transito", $content );
     }
 
     public static function admin_menu(){
@@ -85,7 +96,7 @@ class Mails{
                         		<tr>
                         			<th>SMTP password</th>
                         			<td>
-		                                <input type="text" id="password" name="password" value="<?=$password;?>">
+		                                <input type="password" id="password" name="password" value="<?=$password;?>">
                         			</td>
                         		</tr>
                                 <tr>
@@ -263,15 +274,13 @@ class Mails{
         
             if( ! $mail->send() ) {
                 echo "error ".$mail->ErrorInfo;
-            }else{
-                echo 'Message has been sent';
             }
             
         }
         catch(Exception $e){
             echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
         }
-        wp_die();
+        
     }
 
 }
